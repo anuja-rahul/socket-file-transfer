@@ -1,0 +1,3 @@
+pycryptodome
+tqdm
+python_datalogger==0.0.4
