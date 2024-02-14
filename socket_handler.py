@@ -21,11 +21,10 @@ class SocketHandler(ISocketHandler, ABC):
             SocketHandler(password="root", nonce="nonce")
         return SocketHandler.__instance
 
-    def __init__(self, password, nonce, send: bool = False, receive: bool = False):
+    def __init__(self, password, nonce, send: bool = False):
         if SocketHandler.__instance is not None:
             raise Exception("Cannot be instantiated more than once")
 
         self.__password = password
         self.__nonce = nonce
         self.__send = send
-        self.__receive = receive
