@@ -37,8 +37,8 @@ class SocketClient(ISocketClient, ABC):
             self.__nonce = nonce
             self.__send = send
             self.__file = f"send/{file}"
-            self.__validator = Validator(key=key, nonce=nonce, file=file)
-            self.__hashes = self.__validator.get_hashes
+            self.__validator = Validator(key=self.__key, nonce=self.__nonce, file=self.__file)
+            self.__hashes = self.__validator.get_hashes()
             self.__client = self.__get_client()
             self.__cipher = AESHandler(key=self.__key, nonce=self.__nonce)
 
@@ -67,7 +67,7 @@ class SocketClient(ISocketClient, ABC):
             encrypted_data = self.__cipher.encrypt(data)
             self.__client.send(self.__file.split("/")[-1].encode())
             self.__client.send(str(file_size).encode())
-            self.__client.send(str(self.__hashes).encode())
+            self.__client.send(self.__hashes.encode())
             self.__client.sendall(encrypted_data)
             self.__client.send(b"<END>")
             self.__client.close()
@@ -76,4 +76,4 @@ class SocketClient(ISocketClient, ABC):
             raise Exception("\nFile not found !\n")
 
     def __repr__(self):
-        return f"({self.__key}, {self.__nonce}, {self.__send})"
+        return f"{self.__hashes}"
