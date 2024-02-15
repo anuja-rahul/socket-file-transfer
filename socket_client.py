@@ -63,7 +63,7 @@ class SocketClient(ISocketClient, ABC):
         if self.__validator.check_file():
             with open(self.__file, 'rb') as f:
                 data = f.read()
-            file_size = os.path.getsize("language.pdf")
+            file_size = os.path.getsize(self.__file)
             encrypted_data = self.__cipher.encrypt(data)
             self.__client.send(self.__file.split("/")[-1].encode())
             self.__client.send(str(file_size).encode())
