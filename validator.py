@@ -31,8 +31,11 @@ class Validator:
             pwd_hash = hashlib.sha256(self.__password)
             nonce_hash = hashlib.sha256(self.__nonce)
 
-        if self.file:
-            with open(self.file, 'rb') as file:
-                file_hash = hashlib.file_digest(file, "sha256").hexdigest()
+        try:
+            if self.file:
+                with open(self.file, 'rb') as file:
+                    file_hash = hashlib.file_digest(file, "sha256").hexdigest()
+        except FileNotFoundError:
+            raise Exception("\nAdd a valid file name in the send/receive folder !\n")
 
         return {"password_hash": pwd_hash, "nonce_hash": nonce_hash, "file_hash": file_hash}
