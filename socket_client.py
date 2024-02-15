@@ -57,7 +57,7 @@ class SocketClient(ISocketClient, ABC):
     def __get_client():
         return socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def __send_data(self, port: int = 8999):
+    def send_data(self, port: int = 8999):
         self.__client.connect(('localhost', port))
 
         if self.__validator.check_file():
