@@ -1,6 +1,6 @@
 """
-socket_file_transfer/validator.py
-Main script for validating data.
+socket_file_transfer/socket_client.py
+Main script for sending(client) data.
 """
 
 import os
