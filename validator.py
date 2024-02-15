@@ -31,7 +31,7 @@ class Validator:
             return False
 
     # noinspection PyTypeChecker
-    def get_hashes(self):
+    def get_hashes(self) -> dict[str:bytes]:
         key_hash = None
         nonce_hash = None
         file_hash = None
