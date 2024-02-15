@@ -1,6 +1,6 @@
 """
 socket_file_transfer/socket_client.py
-Main script for accessing the client and server classes.
+Main script for accessing the client classes.
 """
 
 from abc import ABCMeta, abstractmethod, ABC
