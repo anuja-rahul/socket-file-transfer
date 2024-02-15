@@ -27,7 +27,7 @@ class SocketClient(ISocketClient, ABC):
             SocketClient(key=b"SocketClientsPWD", nonce=b"SocketClientsNCE", file="test.txt")
         return SocketClient.__instance
 
-    def __init__(self, file: str, key: bytes, nonce: bytes, send: bool = False):
+    def __init__(self, key: bytes, nonce: bytes, send: bool = False, file: str = "test.txt"):
         InitEnv.init_env()
 
         if SocketClient.__instance is not None:
