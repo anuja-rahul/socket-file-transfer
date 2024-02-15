@@ -5,6 +5,8 @@ Main script for accessing the server classes.
 
 from abc import ABCMeta, abstractmethod, ABC
 
+# TODO: Add socket server functionality
+
 
 class ISocketServer(metaclass=ABCMeta):
     @abstractmethod
