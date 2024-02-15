@@ -37,8 +37,8 @@ class Validator:
         file_hash = None
 
         if self.__key and self.__nonce:
-            key_hash = hashlib.sha256(self.__key)
-            nonce_hash = hashlib.sha256(self.__nonce)
+            key_hash = hashlib.sha256(self.__key).hexdigest()
+            nonce_hash = hashlib.sha256(self.__nonce).hexdigest()
 
         try:
             if self.file:
