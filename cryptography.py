@@ -18,3 +18,5 @@ class AESHandler:
     def encrypt(self, data: bytes) -> bytes:
         return self.__cipher.encrypt(data)
 
+    def decrypt(self, data: bytes) -> bytes:
+        return self.__cipher.decrypt(data)
