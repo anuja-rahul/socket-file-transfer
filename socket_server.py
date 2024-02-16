@@ -72,9 +72,9 @@ class SocketServer(ISocketServer, ABC):
             file_name = client.recv(1024).decode()
             file_size = client.recv(1024).decode()
             hashes = client.recv(1024).decode()
-            new_hash = ast.literal_eval(hashes)
+            clear_hash = ast.literal_eval(hashes)
 
-            if self.__validator.check_hashes(hashes=new_hash):
+            if self.__validator.check_hashes(hashes=clear_hash):
                 self.__progress = self.__get_progress(file_size=file_size)
                 file = open(f"receive/{file_name}", 'wb')
                 done = False
