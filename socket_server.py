@@ -3,7 +3,6 @@ socket_file_transfer/socket_client.py
 Main script for accessing the server classes.
 """
 
-import os
 import tqdm
 import socket
 from abc import ABCMeta, abstractmethod, ABC
@@ -11,8 +10,6 @@ from abc import ABCMeta, abstractmethod, ABC
 from validator import Validator
 from init_handler import InitEnv
 from cryptography import AESHandler
-
-# TODO: Add socket server functionality
 
 
 class ISocketServer(metaclass=ABCMeta):
@@ -44,7 +41,7 @@ class SocketServer(ISocketServer, ABC):
             self.__hashes = self.__validator.get_hashes()
             self.__server = self.__get_server()
             self.__cipher = AESHandler(key=self.__key, nonce=self.__nonce)
-            self.progress = self.__get_progress()
+            self.__progress = None
 
             if self.__validator.validate_length():
                 self.__validity = True
@@ -62,11 +59,11 @@ class SocketServer(ISocketServer, ABC):
         return socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     @staticmethod
-    def __get_progress():
+    def __get_progress(file_size):
         return tqdm.tqdm(unit="B", unit_scale=True, unit_divisor=1000, total=int(file_size))
 
     def receive_data(self, port: int = 8999):
-        self.__server.bind(('localhost', 8999))
+        self.__server.bind(('localhost', port))
         self.__server.listen()
         client, addr = self.__server.accept()
 
@@ -75,15 +72,28 @@ class SocketServer(ISocketServer, ABC):
             file_size = client.recv(1024).decode()
             hashes = client.recv(1024).decode()
 
-            done = False
-            file_bytes = b""
+            if self.__validator.check_hashes(hashes=hashes):
+                self.__progress = self.__get_progress(file_size=file_size)
+                file = open(f"received/{file_name}", 'wb')
+                done = False
+                file_bytes = b""
 
-            while not done:
-                data = client.recv(1024)
-                if data[-5:] == b"<END>":
-                    done = True
-                else:
-                    file_bytes += data
-                    progress.update(1024)
+                while not done:
+                    data = client.recv(1024)
+                    if data[-5:] == b"<END>":
+                        done = True
+                    else:
+                        file_bytes += data
+                        self.__progress.update(1024)
 
+                file.write(self.__cipher.decrypt(file_bytes[:-5]))
+                file.close()
+            else:
+                print("\nHashes of the received key and nonce does not match the "
+                      "hashes of the key and nonce your entered !\n")
 
+        client.close()
+        self.__server.close()
+
+    def __repr__(self):
+        return f"{self.__hashes}"
