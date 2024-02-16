@@ -1,2 +1,2 @@
 It's Working !!!  
-Still learning and trying to make this work.
+Still learning and works fine on localhost.
