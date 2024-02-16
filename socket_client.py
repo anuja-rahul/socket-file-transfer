@@ -51,7 +51,7 @@ class SocketClient(ISocketClient, ABC):
 
     @staticmethod
     def print_data(**kwargs):
-        print(f"({SocketClient.__instance.send})")
+        print(SocketClient.__instance.__send)
 
     @staticmethod
     def __get_client():
@@ -60,7 +60,7 @@ class SocketClient(ISocketClient, ABC):
     def send_data(self, port: int = 8999):
         self.__client.connect(('localhost', port))
 
-        if self.__validator.check_file():
+        if self.__validator.check_file() and self.__validity:
             with open(self.__file, 'rb') as f:
                 data = f.read()
             file_size = os.path.getsize(self.__file)
@@ -70,10 +70,11 @@ class SocketClient(ISocketClient, ABC):
             self.__client.send(self.__hashes.encode())
             self.__client.sendall(encrypted_data)
             self.__client.send(b"<END>")
-            self.__client.close()
 
         else:
-            raise Exception("\nFile not found !\n")
+            raise Exception("\nFile not found or check your key again !\n")
+
+        self.__client.close()
 
     def __repr__(self):
         return f"{self.__hashes}"
