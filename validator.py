@@ -25,7 +25,7 @@ class Validator:
         send_samples = os.listdir("send")
         recv_samples = os.listdir("receive")
 
-        if self.file in send_samples or self.file in recv_samples:
+        if self.file.split("/")[-1] in send_samples or self.file in recv_samples:
             return True
         else:
             return False
@@ -45,16 +45,18 @@ class Validator:
                 with open(self.file, 'rb') as file:
                     file_hash = hashlib.file_digest(file, "sha256").hexdigest()
         except FileNotFoundError:
-            raise Exception("\nAdd a valid file name in the send/receive folder !\n")
+            # print("\nAdd a valid file name in the send/receive folder !\n")
+            pass
 
         return {"key_hash": key_hash, "nonce_hash": nonce_hash, "file_hash": file_hash}
 
     def check_hashes(self, hashes: dict[str:bytes]):
-        local_hash = self.get_hashes()
-        foreign_hashes = hashes
+        local_key_hash = self.get_hashes()["key_hash"]
+        local_nonce_hash = self.get_hashes()["nonce_hash"]
+        foreign_key_hash = hashes["key_hash"]
+        foreign_nonce_hash = hashes["nonce_hash"]
 
-        if (local_hash["key_hash"] == foreign_hashes["key_hash"] and
-                local_hash["nonce_hash"] == foreign_hashes["nonce_hash"]):
+        if local_key_hash == foreign_key_hash and local_nonce_hash == foreign_nonce_hash:
             return True
 
         else:
