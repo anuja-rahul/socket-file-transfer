@@ -59,8 +59,8 @@ class SocketServer(ISocketServer, ABC):
         return socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     @staticmethod
-    def __get_progress(file_size):
-        return tqdm.tqdm(unit="B", unit_scale=True, unit_divisor=1000, total=int(file_size))
+    def __get_progress(file_size: str):
+        return tqdm.tqdm(unit="B", unit_scale=True, unit_divisor=1000, total=float(file_size))
 
     def receive_data(self, port: int = 8999):
         self.__server.bind(('localhost', port))
