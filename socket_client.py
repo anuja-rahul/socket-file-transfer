@@ -67,9 +67,10 @@ class SocketClient(ISocketClient, ABC):
             encrypted_data = self.__cipher.encrypt(data)
             self.__client.send(self.__file.split("/")[-1].encode())
             self.__client.send(str(file_size).encode())
-            self.__client.send(self.__hashes.encode())
+            self.__client.send(str(self.__hashes).encode())
             self.__client.sendall(encrypted_data)
             self.__client.send(b"<END>")
+            print("sent")
 
         else:
             raise Exception("\nFile not found or check your key again !\n")

@@ -4,6 +4,7 @@ Main script for accessing the server classes.
 """
 
 import tqdm
+import ast
 import socket
 from abc import ABCMeta, abstractmethod, ABC
 
@@ -71,10 +72,11 @@ class SocketServer(ISocketServer, ABC):
             file_name = client.recv(1024).decode()
             file_size = client.recv(1024).decode()
             hashes = client.recv(1024).decode()
+            new_hash = ast.literal_eval(hashes)
 
-            if self.__validator.check_hashes(hashes=hashes):
+            if self.__validator.check_hashes(hashes=new_hash):
                 self.__progress = self.__get_progress(file_size=file_size)
-                file = open(f"received/{file_name}", 'wb')
+                file = open(f"receive/{file_name}", 'wb')
                 done = False
                 file_bytes = b""
 
