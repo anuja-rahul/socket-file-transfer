@@ -48,3 +48,14 @@ class Validator:
             raise Exception("\nAdd a valid file name in the send/receive folder !\n")
 
         return {"key_hash": key_hash, "nonce_hash": nonce_hash, "file_hash": file_hash}
+
+    def check_hashes(self, hashes: dict[str:bytes]):
+        local_hash = self.get_hashes()
+        foreign_hashes = hashes
+
+        if (local_hash["key_hash"] == foreign_hashes["key_hash"] and
+                local_hash["nonce_hash"] == foreign_hashes["nonce_hash"]):
+            return True
+
+        else:
+            return False
