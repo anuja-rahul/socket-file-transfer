@@ -5,10 +5,12 @@ Main script for validating data.
 import os
 import uuid
 import hashlib
+from python_datalogger import DataLogger
 
 
 class Validator:
     def __init__(self, key: bytes = None, nonce: bytes = None, file: str = None):
+        self.__logger = DataLogger(name=f"Validator__{uuid.uuid4()}__", level="DEBUG", propagate=True)
         self.__request = uuid.uuid4()
         self.__key = key
         self.__nonce = nonce
@@ -50,6 +52,7 @@ class Validator:
 
         return {"key_hash": key_hash, "nonce_hash": nonce_hash, "file_hash": file_hash}
 
+    @DataLogger.logger
     def check_hashes(self, hashes: dict[str:bytes]):
         local_key_hash = self.get_hashes()["key_hash"]
         local_nonce_hash = self.get_hashes()["nonce_hash"]
@@ -57,7 +60,9 @@ class Validator:
         foreign_nonce_hash = hashes["nonce_hash"]
 
         if local_key_hash == foreign_key_hash and local_nonce_hash == foreign_nonce_hash:
+            self.__logger.log_info("[key,nonce] hash verified successfully\n")
             return True
 
         else:
+            self.__logger.log_warning("[key,nonce] hash verification failed")
             return False
