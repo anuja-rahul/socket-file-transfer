@@ -5,11 +5,13 @@ Main script for sending(client) data.
 
 import os
 import socket
+from datetime import datetime
 from abc import ABCMeta, abstractmethod, ABC
 
 from validator import Validator
 from init_handler import InitEnv
-from cryptography import AESHandler
+from cryptography import CryptoHandler
+from python_datalogger import DataLogger
 
 
 class ISocketClient(metaclass=ABCMeta):
@@ -29,6 +31,7 @@ class SocketClient(ISocketClient, ABC):
 
     def __init__(self, key: bytes, nonce: bytes, send: bool = False, file: str = "test.txt"):
         InitEnv.init_env()
+        self.__logger = DataLogger(name="SocketClient", propagate=True, level="DEBUG")
 
         if SocketClient.__instance is not None:
             raise Exception("Cannot be instantiated more than once")
@@ -40,7 +43,7 @@ class SocketClient(ISocketClient, ABC):
             self.__validator = Validator(key=self.__key, nonce=self.__nonce, file=self.__file)
             self.__hashes = self.__validator.get_hashes()
             self.__client = self.__get_client()
-            self.__cipher = AESHandler(key=self.__key, nonce=self.__nonce)
+            self.__cipher = CryptoHandler(key=self.__key, nonce=self.__nonce)
 
             if self.__validator.validate_length():
                 self.__validity = True
@@ -54,23 +57,35 @@ class SocketClient(ISocketClient, ABC):
         print(SocketClient.__instance.__send)
 
     @staticmethod
+    @DataLogger.logger
     def __get_client():
         return socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    @DataLogger.logger
     def send_data(self, port: int = 8999):
         self.__client.connect(('localhost', port))
 
         if self.__validator.check_file() and self.__validity:
+
             with open(self.__file, 'rb') as f:
                 data = f.read()
+
             file_size = os.path.getsize(self.__file)
             encrypted_data = self.__cipher.encrypt(data)
+
             self.__client.send(self.__file.split("/")[-1].encode())
+            self.__logger.log_info(f"Sent file name - {datetime.now().time()} : "
+                                   f"({(self.__file.split("/")[-1].encode()).decode()})")
+
             self.__client.send(str(file_size).encode())
+            self.__logger.log_info(f"Sent file size - {datetime.now().time()} : ({file_size}B)")
+
             self.__client.send(str(self.__hashes).encode())
+            self.__logger.log_info(f"Sent hashes - {datetime.now().time()}")
+
             self.__client.sendall(encrypted_data)
             self.__client.send(b"<END>")
-            print("sent")
+            self.__logger.log_info(f"End of data packets - {datetime.now().time()}\n")
 
         else:
             raise Exception("\nFile not found or check your key again !\n")
