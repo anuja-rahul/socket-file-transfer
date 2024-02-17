@@ -19,4 +19,8 @@ from socket_client import SocketClient
 
 sample = SocketClient()
 
+# in case of an unknown error check your log file from (./logs)
+# they will most likely contain the type of the error, name of the method in which 
+# the said error originated and the time of the error.
+
 ```
