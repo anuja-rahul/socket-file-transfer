@@ -75,7 +75,7 @@ class SocketClient(ISocketClient, ABC):
 
             self.__client.send(self.__file.split("/")[-1].encode())
             self.__logger.log_info(f"Sent file name - {datetime.now().time()} : "
-                                   f"({(self.__file.split("/")[-1].encode()).decode()})")
+                                   f"({self.__file.split("/")[-1]})")
 
             self.__client.send(str(file_size).encode())
             self.__logger.log_info(f"Sent file size - {datetime.now().time()} : ({file_size}B)")
