@@ -19,6 +19,10 @@ from socket_client import SocketClient
 
 sample = SocketClient()
 
+# make sure to remove any test objects before instantiating either
+# the working server or client objects because the singleton design will only allow 
+# one instance/object  per class from both SocketServer and SocketClient.
+
 # in case of an unknown error check your log file from (./logs)
 # they will most likely contain the type of the error, name of the method in which 
 # the said error originated and the time of the error.
