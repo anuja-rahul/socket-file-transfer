@@ -30,7 +30,8 @@ class SocketServer(ISocketServer, ABC):
             SocketServer(key=b"SocketClientsPWD", nonce=b"SocketClientsNCE", file="test.txt")
         return SocketServer.__instance
 
-    def __init__(self, key, nonce, receive: bool = False, file: str = "test.txt"):
+    def __init__(self, key: bytes = b'DefaultSampleKey', nonce: bytes = b'DefaultSampleNCE',
+                 receive: bool = False, file: str = "test.txt"):
         InitEnv.init_env()
         self.__logger = DataLogger(name="SocketServer", propagate=True, level="DEBUG")
 
@@ -73,56 +74,60 @@ class SocketServer(ISocketServer, ABC):
 
     @DataLogger.logger
     def receive_data(self, port: int = 8999):
-        self.__server.bind(('localhost', port))
-        self.__server.listen()
-        client, addr = self.__server.accept()
+        if self.__receive:
+            self.__server.bind(('localhost', port))
+            self.__server.listen()
+            client, addr = self.__server.accept()
 
-        if self.__validator.check_file() and self.__validity:
-            file_name = client.recv(1024).decode()
-            self.__logger.log_info(f"Received file name - {datetime.now().time()} : ({file_name})")
-            file_size = client.recv(1024).decode()
-            self.__logger.log_info(f"Received file size - {datetime.now().time()} : ({file_size}B)")
-            hashes = client.recv(1024).decode()
-            clear_hash = ast.literal_eval(hashes)
-            self.__logger.log_info(f"Received hashes - {datetime.now().time()}\n")
+            if self.__validator.check_file() and self.__validity:
+                file_name = client.recv(1024).decode()
+                self.__logger.log_info(f"Received file name - {datetime.now().time()} : ({file_name})")
+                file_size = client.recv(1024).decode()
+                self.__logger.log_info(f"Received file size - {datetime.now().time()} : ({file_size}B)")
+                hashes = client.recv(1024).decode()
+                clear_hash = ast.literal_eval(hashes)
+                self.__logger.log_info(f"Received hashes - {datetime.now().time()}\n")
 
-            if self.__validator.check_hashes(hashes=clear_hash):
-                self.__progress = self.__get_progress(file_size=file_size)
-                file = open(f"receive/{file_name}", 'wb')
-                done = False
-                file_bytes = b""
+                if self.__validator.check_hashes(hashes=clear_hash):
+                    self.__progress = self.__get_progress(file_size=file_size)
+                    file = open(f"receive/{file_name}", 'wb')
+                    done = False
+                    file_bytes = b""
 
-                while not done:
-                    data = client.recv(1024)
-                    if data[-5:] == b"<END>":
-                        done = True
+                    while not done:
+                        data = client.recv(1024)
+                        if data[-5:] == b"<END>":
+                            done = True
+                        else:
+                            file_bytes += data
+                            self.__progress.update(1024)
+
+                    del self.__progress
+                    file.write(self.__cipher.decrypt(file_bytes[:-5]))
+                    file.close()
+                    print(" ")
+                    self.__logger.log_info(f"File received - {datetime.now().time()}")
+
+                    """
+                    if self.__validator.verify_file(file_hash=clear_hash["file_hash"], path=self.__file):
+                        self.__logger.log_info(f"File verified - {datetime.now().time()}")
                     else:
-                        file_bytes += data
-                        self.__progress.update(1024)
+                        try:
+                            os.remove(self.__file)
+                            self.__logger.log_info(f"File deleted - {datetime.now().time()}")
+                        except FileNotFoundError:
+                            pass
+                    """
 
-                del self.__progress
-                file.write(self.__cipher.decrypt(file_bytes[:-5]))
-                file.close()
-                print(" ")
-                self.__logger.log_info(f"File received - {datetime.now().time()}")
-
-                """
-                if self.__validator.verify_file(file_hash=clear_hash["file_hash"], path=self.__file):
-                    self.__logger.log_info(f"File verified - {datetime.now().time()}")
                 else:
-                    try:
-                        os.remove(self.__file)
-                        self.__logger.log_info(f"File deleted - {datetime.now().time()}")
-                    except FileNotFoundError:
-                        pass
-                """
+                    self.__logger.log_critical("Hashes doesn't match, terminating the server")
 
-            else:
-                self.__logger.log_critical("Hashes doesn't match, terminating the server")
+            client.close()
+            self.__server.close()
+            self.__logger.log_info("Client, Server connections terminated")
 
-        client.close()
-        self.__server.close()
-        self.__logger.log_info("Client, Server connections terminated")
+        else:
+            self.__logger.log_critical("(receive) parameter must be True to call this method")
 
     def __repr__(self):
         return f"{self.__hashes}"

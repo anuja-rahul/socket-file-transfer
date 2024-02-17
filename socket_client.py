@@ -29,7 +29,8 @@ class SocketClient(ISocketClient, ABC):
             SocketClient(key=b"SocketClientsPWD", nonce=b"SocketClientsNCE", file="test.txt")
         return SocketClient.__instance
 
-    def __init__(self, key: bytes, nonce: bytes, send: bool = False, file: str = "test.txt"):
+    def __init__(self, key: bytes = b'DefaultSampleKey', nonce: bytes = b'DefaultSampleNCE',
+                 send: bool = False, file: str = "test.txt"):
         InitEnv.init_env()
         self.__logger = DataLogger(name="SocketClient", propagate=True, level="DEBUG")
 
@@ -63,34 +64,39 @@ class SocketClient(ISocketClient, ABC):
 
     @DataLogger.logger
     def send_data(self, port: int = 8999):
-        self.__client.connect(('localhost', port))
+        if self.__send:
 
-        if self.__validator.check_file() and self.__validity:
+            self.__client.connect(('localhost', port))
 
-            with open(self.__file, 'rb') as f:
-                data = f.read()
+            if self.__validator.check_file() and self.__validity:
 
-            file_size = os.path.getsize(self.__file)
-            encrypted_data = self.__cipher.encrypt(data)
+                with open(self.__file, 'rb') as f:
+                    data = f.read()
 
-            self.__client.send(self.__file.split("/")[-1].encode())
-            self.__logger.log_info(f"Sent file name - {datetime.now().time()} : "
-                                   f"({self.__file.split("/")[-1]})")
+                file_size = os.path.getsize(self.__file)
+                encrypted_data = self.__cipher.encrypt(data)
 
-            self.__client.send(str(file_size).encode())
-            self.__logger.log_info(f"Sent file size - {datetime.now().time()} : ({file_size}B)")
+                self.__client.send(self.__file.split("/")[-1].encode())
+                self.__logger.log_info(f"Sent file name - {datetime.now().time()} : "
+                                       f"({self.__file.split("/")[-1]})")
 
-            self.__client.send(str(self.__hashes).encode())
-            self.__logger.log_info(f"Sent hashes - {datetime.now().time()}")
+                self.__client.send(str(file_size).encode())
+                self.__logger.log_info(f"Sent file size - {datetime.now().time()} : ({file_size}B)")
 
-            self.__client.sendall(encrypted_data)
-            self.__client.send(b"<END>")
-            self.__logger.log_info(f"End of data packets - {datetime.now().time()}\n")
+                self.__client.send(str(self.__hashes).encode())
+                self.__logger.log_info(f"Sent hashes - {datetime.now().time()}")
+
+                self.__client.sendall(encrypted_data)
+                self.__client.send(b"<END>")
+                self.__logger.log_info(f"End of data packets - {datetime.now().time()}\n")
+
+            else:
+                raise Exception("\nFile not found or check your key again !\n")
+
+            self.__client.close()
 
         else:
-            raise Exception("\nFile not found or check your key again !\n")
-
-        self.__client.close()
+            self.__logger.log_critical("(send) parameter must be True to call this method")
 
     def __repr__(self):
         return f"{self.__hashes}"
