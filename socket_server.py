@@ -92,21 +92,22 @@ class SocketServer(ISocketServer, ABC):
                     self.__progress = self.__get_progress(file_size=file_size)
                     file = open(f"receive/{file_name}", 'wb')
                     done = False
-                    file_bytes = b""
+                    encrypted_data = b""
 
                     while not done:
                         data = client.recv(1024)
                         if data[-5:] == b"<END>":
                             done = True
                         else:
-                            file_bytes += data
+                            encrypted_data += data
                             self.__progress.update(1024)
 
                     del self.__progress
-                    file.write(self.__cipher.decrypt(file_bytes[:-5]))
-                    file.close()
+                    data = self.__cipher.decrypt(encrypted_data)
+                    file.write(data)
                     print(" ")
                     self.__logger.log_info(f"File received - {datetime.now().time()}")
+                    file.close()
 
                     """
                     if self.__validator.verify_file(file_hash=clear_hash["file_hash"], path=self.__file):
