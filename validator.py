@@ -22,7 +22,7 @@ class Validator:
                 return False
             else:
                 return True
-
+    """
     def check_file(self):
         send_samples = os.listdir("send")
         recv_samples = os.listdir("receive")
@@ -31,7 +31,7 @@ class Validator:
             return True
         else:
             return False
-
+    """
     # noinspection PyTypeChecker
     def get_hashes(self) -> dict[str:bytes]:
         key_hash = None
