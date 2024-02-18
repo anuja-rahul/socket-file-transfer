@@ -79,7 +79,7 @@ class SocketServer(ISocketServer, ABC):
             self.__server.listen()
             client, addr = self.__server.accept()
 
-            if self.__validator.check_file() and self.__validity:
+            if self.__validity:
                 file_name = client.recv(1024).decode()
                 self.__logger.log_info(f"Received file name - {datetime.now().time()} : ({file_name})")
                 file_size = client.recv(1024).decode()

@@ -68,7 +68,7 @@ class SocketClient(ISocketClient, ABC):
 
             self.__client.connect(('localhost', port))
 
-            if self.__validator.check_file() and self.__validity:
+            if self.__validity:
 
                 with open(self.__file, 'rb') as f:
                     data = f.read()
