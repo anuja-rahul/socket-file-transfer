@@ -47,7 +47,7 @@ socket-file-transfer/receive.py
 
 from socket_server import SocketServer
 
-receive_instance = SocketServer(key=b"TestPassword1234", nonce=b"TestNonce1234567", receive=True, file="vid.mp4")
+receive_instance = SocketServer(key=b"TestPassword1234", nonce=b"TestNonce1234567", receive=True, file="filename.extension")
 receive_instance.receive_data(port=8999)
 
 # param: nonce,key (both key and nonce will only accept exactly 16 characters of bytes)
