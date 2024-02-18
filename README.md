@@ -1,4 +1,6 @@
-It's Working barely !!!    
+Beta tested on localhost (windows)  
+recommended for sharing small files only  
+transfer speeds can be slow considering this program isn't using any multi-threading.
 
 ```
 receive.py(server) must be running before send.py(client) to establish a connection.
@@ -29,11 +31,13 @@ socket-file-transfer/send.py
 
 from socket_client import SocketClient
 
-sample = SocketClient(key=b"TestPassword1234", nonce=b"TestNonce1234567", send=True, file="filename.extension")
+send_instance = SocketClient(key=b"TestPassword1234", nonce=b"TestNonce1234567", send=True, file="filename.extension")
+send_instance.send_data(port=8999)
 
 # param: nonce,key (both key and nonce will only accept exactly 16 characters of bytes)
 # param: send (send must be True before calling the send_data() method)
 # param: file (file must be the name(with extension) of the file in the send folder which you intend to send.)
+# param: port (default value is 8999, but can be changed depending on user preference)
 ```
 ```python
 """
@@ -44,8 +48,10 @@ socket-file-transfer/receive.py
 from socket_server import SocketServer
 
 receive_instance = SocketServer(key=b"TestPassword1234", nonce=b"TestNonce1234567", receive=True, file="vid.mp4")
+receive_instance.receive_data(port=8999)
 
 # param: nonce,key (both key and nonce will only accept exactly 16 characters of bytes)
 # param: receive (send must be True before calling the receive_data() method)
 # param: file (file must be the name(with extension) of the file which you intend to receive from the client.)
+# param: port (default value is 8999, but can be changed depending on user preference)
 ```
