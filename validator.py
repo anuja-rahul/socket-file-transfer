@@ -2,7 +2,7 @@
 socket_file_transfer/validator.py
 Main script for validating data.
 """
-import os
+
 import uuid
 import hashlib
 from python_datalogger import DataLogger
